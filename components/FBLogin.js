@@ -16,26 +16,39 @@ export default class FBLogin extends Component {
     fetch('https://graph.facebook.com/v2.5/me?fields=email,name,friends&access_token=' + token)
     .then((response) => response.json())
     .then((fbUser) => {
-      signInUser = fbUser
       fetch("http://localhost:3000/users")
         .then(response => response.json())
         .then(users => {
-          for(let i = 0; i <= users.length; i++) {
-            // console.log(signInUser.email)
-            // console.log(users[i].email)
-            if(users[i].email === signInUser.email) {
-              console.log(signInUser.email)
-              this.setState({
-                currentUser: users[i]
-              })
-            } else {
+          console.log(users)
+          const userExists = users.find(user => {
+            console.log(fbUser.id)
+            console.log(user.fbId)
+            if(fbUser.id === user.fbId) {
+              console.log("MATCH")
+            }
+          })
+            console.log(userExists)
+            if(userExists.length === 0) {
+              let newUser = {
+                fbId: fbUser.id,
+                name: fbUser.name,
+                email: fbUser.email
+              }
+              debugger
               fetch("http://localhost:3000/users", {
                 method: "POST",
-                body: JSON({signInUser})
+                headers: {
+                  "Accept": "application/json",
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(newUser)
               })
               .then(response => console.log(response))
+            } else {
+              this.setState({
+                currentUser: userExists[1]
+              })
             }
-          }
         })
         .catch(error => console.log(error))
     })
