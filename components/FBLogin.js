@@ -12,25 +12,26 @@ export default class FBLogin extends Component {
   }
 
   initUser = (token) => {
-    console.log("init")
+    let signInUser = {}
     fetch('https://graph.facebook.com/v2.5/me?fields=email,name,friends&access_token=' + token)
     .then((response) => response.json())
-    .then((user) => {
-      this.setState({
-        currentUser: user
-      })
+    .then((fbUser) => {
+      signInUser = fbUser
       fetch("http://localhost:3000/users")
         .then(response => response.json())
         .then(users => {
           for(let i = 0; i <= users.length; i++) {
-            if(users[i].email === user.email) {
+            // console.log(signInUser.email)
+            // console.log(users[i].email)
+            if(users[i].email === signInUser.email) {
+              console.log(signInUser.email)
               this.setState({
                 currentUser: users[i]
               })
             } else {
               fetch("http://localhost:3000/users", {
                 method: "POST",
-                body: JSON({user})
+                body: JSON({signInUser})
               })
               .then(response => console.log(response))
             }
