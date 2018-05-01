@@ -21,20 +21,19 @@ export default class FBLogin extends Component {
         .then(users => {
           console.log(users)
           const userExists = users.find(user => {
-            console.log(fbUser.id)
-            console.log(user.fbId)
-            if(fbUser.id === user.fbId) {
-              console.log("MATCH")
-            }
+            return fbUser.id == user.fbId
           })
             console.log(userExists)
-            if(userExists.length === 0) {
+            if(userExists) {
+              this.setState({
+                currentUser: userExists
+              })
+            } else {
               let newUser = {
                 fbId: fbUser.id,
                 name: fbUser.name,
                 email: fbUser.email
               }
-              debugger
               fetch("http://localhost:3000/users", {
                 method: "POST",
                 headers: {
@@ -43,11 +42,13 @@ export default class FBLogin extends Component {
                 },
                 body: JSON.stringify(newUser)
               })
-              .then(response => console.log(response))
-            } else {
-              this.setState({
-                currentUser: userExists[1]
+              .then(response => response.json())
+              .then(user => {
+                this.setState({
+                  currentUser: user
+                })
               })
+              .catch(error => console.log(error))
             }
         })
         .catch(error => console.log(error))
